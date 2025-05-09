@@ -1,0 +1,41 @@
+{
+  "model": {
+    "model_type": "advanced_lstm",
+    "max_words": 10000,
+    "max_sequence_length": 100,
+    "use_reinforcement_learning": true
+  },
+  "labeling": {
+    "confidence_threshold": 0.9,
+    "use_ensemble": true,
+    "ensemble_size": 3,
+    "ensemble_agreement_threshold": 0.7,
+    "human_verification_threshold": 0.7,
+    "max_examples_per_batch": 1000,
+    "save_confidence": true,
+    "incremental_update": {
+      "enabled": true,
+      "update_frequency": 500,
+      "min_examples_for_update": 100,
+      "epochs": 3,
+      "batch_size": 32
+    }
+  },
+  "quality_assurance": {
+    "enabled": true,
+    "validation_split": 0.1,
+    "min_accuracy_threshold": 0.8,
+    "confusion_matrix": true,
+    "cross_validation": false
+  },
+  "active_learning_integration": {
+    "enabled": true,
+    "strategy": "uncertainty",
+    "batch_size": 100
+  },
+  "output": {
+    "format": "json",
+    "include_metadata": true,
+    "separate_files_by_confidence": true
+  }
+}
