@@ -1,0 +1,11 @@
+# These owners will be the default owners for everything in the repo.
+* @BhekumusaEric
+
+# Specific ownership for different parts of the codebase
+/models/ @BhekumusaEric
+/src/ @BhekumusaEric
+/tests/ @BhekumusaEric
+/docs/ @BhekumusaEric
+
+# CI/CD configuration
+/.github/ @BhekumusaEric

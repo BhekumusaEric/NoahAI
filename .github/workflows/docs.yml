@@ -1,0 +1,133 @@
+name: Documentation
+
+on:
+  push:
+    branches: [ main, wtc_python_quiz ]
+    paths:
+      - '**.py'
+      - '**.md'
+      - 'docs/**'
+      - '.github/workflows/docs.yml'
+  workflow_dispatch:  # Allows manual triggering
+
+jobs:
+  build-docs:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+        cache: 'pip'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install sphinx sphinx_rtd_theme myst-parser
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        pip install -e .
+    
+    - name: Create docs directory if it doesn't exist
+      run: |
+        mkdir -p docs/source
+    
+    - name: Generate documentation configuration
+      run: |
+        if [ ! -f docs/source/conf.py ]; then
+          cat > docs/source/conf.py << 'EOF'
+# Configuration file for the Sphinx documentation builder.
+import os
+import sys
+sys.path.insert(0, os.path.abspath('../..'))
+
+# -- Project information -----------------------------------------------------
+project = 'NoahAI'
+copyright = '2023, Bhekumusa Eric Ntshwenya'
+author = 'Bhekumusa Eric Ntshwenya'
+
+# -- General configuration ---------------------------------------------------
+extensions = [
+    'sphinx.ext.autodoc',
+    'sphinx.ext.viewcode',
+    'sphinx.ext.napoleon',
+    'sphinx.ext.intersphinx',
+    'myst_parser',
+]
+
+templates_path = ['_templates']
+exclude_patterns = []
+
+# -- Options for HTML output -------------------------------------------------
+html_theme = 'sphinx_rtd_theme'
+html_static_path = ['_static']
+
+# -- Extension configuration -------------------------------------------------
+intersphinx_mapping = {
+    'python': ('https://docs.python.org/3', None),
+    'numpy': ('https://numpy.org/doc/stable/', None),
+    'tensorflow': ('https://www.tensorflow.org/api_docs/python', None),
+}
+
+autodoc_default_options = {
+    'members': True,
+    'member-order': 'bysource',
+    'special-members': '__init__',
+    'undoc-members': True,
+    'exclude-members': '__weakref__'
+}
+EOF
+        fi
+    
+    - name: Generate index.rst
+      run: |
+        if [ ! -f docs/source/index.rst ]; then
+          cat > docs/source/index.rst << 'EOF'
+Welcome to NoahAI's documentation!
+==================================
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Contents:
+
+   modules
+   readme
+
+Indices and tables
+==================
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
+EOF
+        fi
+    
+    - name: Generate readme.rst
+      run: |
+        if [ ! -f docs/source/readme.rst ]; then
+          cat > docs/source/readme.rst << 'EOF'
+README
+======
+
+.. include:: ../../README.md
+   :parser: myst_parser.sphinx_
+EOF
+        fi
+    
+    - name: Generate API documentation
+      run: |
+        sphinx-apidoc -o docs/source .
+    
+    - name: Build documentation
+      run: |
+        cd docs && make html || sphinx-build -b html source build/html
+    
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/wtc_python_quiz'
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./docs/build/html
+        destination_dir: docs
+        keep_files: true
