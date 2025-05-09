@@ -1,0 +1,30 @@
+numpy>=1.19.0
+pandas>=1.1.0
+scikit-learn>=0.24.0
+tensorflow>=2.4.0
+transformers>=4.5.0
+nltk>=3.6.0
+spacy>=3.0.0
+python-dotenv>=0.15.0
+colorama>=0.4.4
+
+# Advanced NLP
+sentence-transformers>=2.2.0
+flair>=0.11.0
+gensim>=4.1.0
+
+# Web Interface
+flask>=2.0.0
+flask-socketio>=5.1.0
+flask-cors>=3.0.10
+
+# Voice Capabilities
+SpeechRecognition>=3.8.0
+pyttsx3>=2.90
+pyaudio>=0.2.11
+
+# External Integrations
+requests>=2.25.0
+google-api-python-client>=2.0.0
+google-auth-httplib2>=0.1.0
+google-auth-oauthlib>=0.4.0
