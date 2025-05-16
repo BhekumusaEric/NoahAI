@@ -99,7 +99,9 @@ Options:
 - `--debug`: Run in debug mode
 - `--simple`: Use simple model instead of deep learning
 
-Then open your browser and navigate to `http://localhost:5000`
+Then open your browser and navigate to:
+- Main chat interface: `http://localhost:5000`
+- AI training interface: `http://localhost:5000/ai_training`
 
 ### Voice Commands
 
@@ -125,6 +127,13 @@ NoahAI includes deep learning capabilities that allow it to improve over time:
    Noah: Training in progress... This might take a moment.
    Noah: Training complete! Processed 15 feedback entries. I should be smarter now!
    ```
+
+3. **AI Training Interface**: Use the dedicated web interface for advanced training
+   - Access at `http://localhost:5000/ai_training`
+   - Configure training parameters (epochs, batch size, learning rate)
+   - Enable transfer learning and reinforcement learning
+   - Monitor training progress in real-time
+   - View training results with visualizations
 
 The AI requires at least 10 feedback entries before it can train the model.
 
@@ -156,6 +165,8 @@ noah-ai/
 │   │   ├── css/           # CSS stylesheets
 │   │   └── js/            # JavaScript files
 │   └── templates/         # HTML templates
+│       ├── index.html     # Main chat interface
+│       └── ai_training.html # AI training interface
 ├── .env                   # Environment variables
 ├── noah_ai.py             # Command-line interface
 ├── run_web_app.py         # Web application runner

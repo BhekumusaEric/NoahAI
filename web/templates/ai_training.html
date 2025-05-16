@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NoahAI - AI Training Interface</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4a6fa5;
+            --secondary-color: #166088;
+            --accent-color: #4fc3a1;
+            --background-color: #f8f9fa;
+            --text-color: #333;
+            --light-text: #f8f9fa;
+            --border-color: #dee2e6;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --info-color: #17a2b8;
+        }
+        
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
+        
+        .navbar {
+            background-color: var(--primary-color);
+        }
+        
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            border: none;
+        }
+        
+        .card-header {
+            background-color: var(--secondary-color);
+            color: var(--light-text);
+            border-radius: 10px 10px 0 0 !important;
+            padding: 15px 20px;
+            font-weight: 500;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+        }
+        
+        .btn-success {
+            background-color: var(--accent-color);
+            border-color: var(--accent-color);
+        }
+        
+        .btn-success:hover {
+            background-color: #3da58a;
+            border-color: #3da58a;
+        }
+        
+        .form-control:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 0.25rem rgba(79, 195, 161, 0.25);
+        }
+        
+        .training-status {
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .status-success {
+            background-color: rgba(40, 167, 69, 0.1);
+            border: 1px solid var(--success-color);
+        }
+        
+        .status-error {
+            background-color: rgba(220, 53, 69, 0.1);
+            border: 1px solid var(--danger-color);
+        }
+        
+        .status-warning {
+            background-color: rgba(255, 193, 7, 0.1);
+            border: 1px solid var(--warning-color);
+        }
+        
+        .status-info {
+            background-color: rgba(23, 162, 184, 0.1);
+            border: 1px solid var(--info-color);
+        }
+        
+        .training-logs {
+            height: 200px;
+            overflow-y: auto;
+            background-color: #f5f5f5;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            margin-top: 15px;
+        }
+        
+        .chart-container {
+            height: 300px;
+            margin-top: 20px;
+        }
+        
+        .feature-icon {
+            font-size: 2rem;
+            color: var(--accent-color);
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark mb-4">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-robot me-2"></i>NoahAI
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">
+                            <i class="fas fa-comment me-1"></i>Chat
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/ai_training">
+                            <i class="fas fa-graduation-cap me-1"></i>Training
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Main Content -->
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col-12">
+                <h1 class="text-center mb-4">NoahAI Training Interface</h1>
+                <p class="text-center">Configure and train your AI model with advanced options</p>
+            </div>
+        </div>
+        
+        <div class="row">
+            <!-- Training Configuration -->
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-cogs me-2"></i>Training Configuration
+                    </div>
+                    <div class="card-body">
+                        <form id="training-form">
+                            <div class="mb-3">
+                                <label for="epochs" class="form-label">Epochs</label>
+                                <input type="number" class="form-control" id="epochs" min="1" max="100" value="5">
+                                <div class="form-text">Number of complete passes through the training dataset</div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="batch-size" class="form-label">Batch Size</label>
+                                <input type="number" class="form-control" id="batch-size" min="1" max="256" value="32">
+                                <div class="form-text">Number of samples processed before model update</div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="learning-rate" class="form-label">Learning Rate</label>
+                                <input type="number" class="form-control" id="learning-rate" min="0.0001" max="0.1" step="0.0001" value="0.001">
+                                <div class="form-text">Step size for model parameter updates</div>
+                            </div>
+                            
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" class="form-check-input" id="transfer-learning">
+                                <label class="form-check-label" for="transfer-learning">Use Transfer Learning</label>
+                                <div class="form-text">Leverage pre-trained models to improve performance</div>
+                            </div>
+                            
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" class="form-check-input" id="reinforcement-learning">
+                                <label class="form-check-label" for="reinforcement-learning">Use Reinforcement Learning</label>
+                                <div class="form-text">Train model using reward-based feedback</div>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary w-100" id="start-training-btn">
+                                <i class="fas fa-play me-2"></i>Start Training
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                
+                <!-- Training Features -->
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <i class="fas fa-lightbulb me-2"></i>Advanced Features
+                    </div>
+                    <div class="card-body">
+                        <div class="row text-center">
+                            <div class="col-6 mb-4">
+                                <div class="feature-icon">
+                                    <i class="fas fa-brain"></i>
+                                </div>
+                                <h5>Deep Learning</h5>
+                                <p class="small">Neural networks for advanced pattern recognition</p>
+                            </div>
+                            <div class="col-6 mb-4">
+                                <div class="feature-icon">
+                                    <i class="fas fa-language"></i>
+                                </div>
+                                <h5>NLP Processing</h5>
+                                <p class="small">Advanced natural language understanding</p>
+                            </div>
+                            <div class="col-6">
+                                <div class="feature-icon">
+                                    <i class="fas fa-globe"></i>
+                                </div>
+                                <h5>Multilingual</h5>
+                                <p class="small">Support for multiple languages</p>
+                            </div>
+                            <div class="col-6">
+                                <div class="feature-icon">
+                                    <i class="fas fa-sync-alt"></i>
+                                </div>
+                                <h5>Continuous Learning</h5>
+                                <p class="small">Improves with each interaction</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Training Status and Results -->
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-chart-line me-2"></i>Training Status
+                    </div>
+                    <div class="card-body">
+                        <div class="training-status status-info" id="training-status">
+                            <p class="mb-0" id="status-message">Waiting to start training...</p>
+                        </div>
+                        
+                        <div class="progress mt-4" style="height: 25px;">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%;" id="training-progress">0%</div>
+                        </div>
+                        
+                        <div class="training-logs mt-4" id="training-logs">
+                            <!-- Training logs will be displayed here -->
+                        </div>
+                        
+                        <div class="d-grid gap-2 mt-4">
+                            <button class="btn btn-danger" id="stop-training-btn" disabled>
+                                <i class="fas fa-stop me-2"></i>Stop Training
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Training Results -->
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <i class="fas fa-chart-bar me-2"></i>Training Results
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container" id="accuracy-chart">
+                            <!-- Chart will be displayed here -->
+                            <p class="text-center text-muted pt-5">Training results will appear here after training</p>
+                        </div>
+                        
+                        <div class="row mt-4">
+                            <div class="col-6">
+                                <div class="card bg-light">
+                                    <div class="card-body text-center">
+                                        <h5 class="card-title">Accuracy</h5>
+                                        <h2 class="mb-0" id="accuracy-value">-</h2>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="card bg-light">
+                                    <div class="card-body text-center">
+                                        <h5 class="card-title">Loss</h5>
+                                        <h2 class="mb-0" id="loss-value">-</h2>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <footer class="bg-light py-4 mt-5">
+        <div class="container text-center">
+            <p class="mb-0">NoahAI &copy; 2025 | Advanced AI Assistant with Deep Learning Capabilities</p>
+        </div>
+    </footer>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Socket.IO -->
+    <script src="https://cdn.socket.io/4.4.1/socket.io.min.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Connect to Socket.IO
+            const socket = io();
+            
+            // DOM elements
+            const trainingForm = document.getElementById('training-form');
+            const startTrainingBtn = document.getElementById('start-training-btn');
+            const stopTrainingBtn = document.getElementById('stop-training-btn');
+            const trainingStatus = document.getElementById('training-status');
+            const statusMessage = document.getElementById('status-message');
+            const trainingProgress = document.getElementById('training-progress');
+            const trainingLogs = document.getElementById('training-logs');
+            const accuracyValue = document.getElementById('accuracy-value');
+            const lossValue = document.getElementById('loss-value');
+            
+            // Initialize variables
+            let isTraining = false;
+            let trainingChart = null;
+            
+            // Socket.IO event listeners
+            socket.on('connect', function() {
+                addLog('Connected to server');
+            });
+            
+            socket.on('training_result', function(data) {
+                updateStatus('success', data.message);
+                addLog(data.message);
+                stopTraining();
+            });
+            
+            socket.on('training_progress', function(data) {
+                updateProgress(data.progress);
+                addLog(`Epoch ${data.epoch}/${data.total_epochs} - Accuracy: ${data.accuracy} - Loss: ${data.loss}`);
+                
+                // Update metrics
+                accuracyValue.textContent = data.accuracy;
+                lossValue.textContent = data.loss;
+                
+                // Update chart if available
+                updateChart(data);
+            });
+            
+            socket.on('training_error', function(data) {
+                updateStatus('error', data.message);
+                addLog(`ERROR: ${data.message}`);
+                stopTraining();
+            });
+            
+            // Form submission
+            trainingForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                if (isTraining) {
+                    return;
+                }
+                
+                // Get form values
+                const epochs = parseInt(document.getElementById('epochs').value);
+                const batchSize = parseInt(document.getElementById('batch-size').value);
+                const learningRate = parseFloat(document.getElementById('learning-rate').value);
+                const useTransferLearning = document.getElementById('transfer-learning').checked;
+                const useReinforcementLearning = document.getElementById('reinforcement-learning').checked;
+                
+                // Validate inputs
+                if (epochs < 1 || batchSize < 1 || learningRate <= 0) {
+                    updateStatus('error', 'Please enter valid training parameters');
+                    return;
+                }
+                
+                // Start training
+                startTraining({
+                    epochs: epochs,
+                    batch_size: batchSize,
+                    learning_rate: learningRate,
+                    use_transfer_learning: useTransferLearning,
+                    use_reinforcement_learning: useReinforcementLearning
+                });
+            });
+            
+            // Stop training button
+            stopTrainingBtn.addEventListener('click', function() {
+                if (!isTraining) {
+                    return;
+                }
+                
+                fetch('/api/stop_training', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        updateStatus('warning', 'Training stopped by user');
+                        addLog('Training stopped by user');
+                        stopTraining();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error stopping training:', error);
+                });
+            });
+            
+            // Function to start training
+            function startTraining(params) {
+                isTraining = true;
+                startTrainingBtn.disabled = true;
+                stopTrainingBtn.disabled = false;
+                
+                // Reset UI
+                trainingProgress.style.width = '0%';
+                trainingProgress.textContent = '0%';
+                trainingStatus.style.display = 'block';
+                updateStatus('info', 'Starting training...');
+                trainingLogs.innerHTML = '';
+                addLog('Starting training with parameters:');
+                addLog(JSON.stringify(params, null, 2));
+                
+                // Send training request
+                fetch('/api/train_model', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(params)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        updateStatus('info', data.message);
+                        addLog(data.message);
+                    } else {
+                        updateStatus('error', data.message);
+                        addLog(`ERROR: ${data.message}`);
+                        stopTraining();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error starting training:', error);
+                    updateStatus('error', 'Error starting training. Please try again.');
+                    addLog(`ERROR: ${error.message}`);
+                    stopTraining();
+                });
+            }
+            
+            // Function to stop training
+            function stopTraining() {
+                isTraining = false;
+                startTrainingBtn.disabled = false;
+                stopTrainingBtn.disabled = true;
+            }
+            
+            // Function to update status
+            function updateStatus(type, message) {
+                trainingStatus.className = 'training-status';
+                trainingStatus.classList.add(`status-${type}`);
+                statusMessage.textContent = message;
+            }
+            
+            // Function to update progress
+            function updateProgress(progress) {
+                trainingProgress.style.width = `${progress}%`;
+                trainingProgress.textContent = `${progress}%`;
+            }
+            
+            // Function to add log message
+            function addLog(message) {
+                const logEntry = document.createElement('div');
+                logEntry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+                trainingLogs.appendChild(logEntry);
+                trainingLogs.scrollTop = trainingLogs.scrollHeight;
+            }
+            
+            // Function to update chart
+            function updateChart(data) {
+                const chartContainer = document.getElementById('accuracy-chart');
+                
+                if (!trainingChart) {
+                    // Clear placeholder text
+                    chartContainer.innerHTML = '';
+                    
+                    // Create canvas for chart
+                    const canvas = document.createElement('canvas');
+                    chartContainer.appendChild(canvas);
+                    
+                    // Initialize chart
+                    const ctx = canvas.getContext('2d');
+                    trainingChart = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: [data.epoch],
+                            datasets: [
+                                {
+                                    label: 'Accuracy',
+                                    data: [data.accuracy],
+                                    borderColor: '#4fc3a1',
+                                    backgroundColor: 'rgba(79, 195, 161, 0.1)',
+                                    tension: 0.1
+                                },
+                                {
+                                    label: 'Loss',
+                                    data: [data.loss],
+                                    borderColor: '#dc3545',
+                                    backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                                    tension: 0.1
+                                }
+                            ]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: {
+                                    beginAtZero: true
+                                }
+                            }
+                        }
+                    });
+                } else {
+                    // Update existing chart
+                    trainingChart.data.labels.push(data.epoch);
+                    trainingChart.data.datasets[0].data.push(data.accuracy);
+                    trainingChart.data.datasets[1].data.push(data.loss);
+                    trainingChart.update();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
